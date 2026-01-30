@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Hello World',
+  title: 'Project 1 - Alexa Kafka',
   description: 'A basic Next.js application by Alexa Kafka',
 }
 
