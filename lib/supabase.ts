@@ -1,15 +1,17 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+let _client: SupabaseClient | null = null
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error(
-    'Missing Supabase env vars. In .env.local add:\n' +
-      '  NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co\n' +
-      '  NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key\n' +
-      'Restart the dev server after changing .env.local.'
-  )
+/**
+ * Returns the Supabase client when NEXT_PUBLIC_SUPABASE_URL and
+ * NEXT_PUBLIC_SUPABASE_ANON_KEY are set (e.g. in .env.local or Vercel env vars).
+ * Returns null otherwise so the app can build and show a message at runtime.
+ */
+export function getSupabase(): SupabaseClient | null {
+  if (_client) return _client
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  if (!url || !key) return null
+  _client = createClient(url, key)
+  return _client
 }
-
-export const supabase: SupabaseClient = createClient(supabaseUrl, supabaseAnonKey)

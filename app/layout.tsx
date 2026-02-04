@@ -1,9 +1,10 @@
 import type { Metadata } from 'next'
+import Sidebar from '@/components/Sidebar'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Project 1 - Alexa Kafka',
-  description: 'A basic Next.js application by Alexa Kafka',
+  title: 'Alexa Kafka\'s Humor Project',
+  description: 'Next.js application by Alexa Kafka',
 }
 
 export default function RootLayout({
@@ -13,7 +14,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <div className="app-shell">
+          <Sidebar />
+          <main className="main-content">{children}</main>
+        </div>
+      </body>
     </html>
   )
 }

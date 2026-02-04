@@ -1,9 +1,24 @@
-import { supabase } from '@/lib/supabase'
+import { getSupabase } from '@/lib/supabase'
 import Link from 'next/link'
 
 const TABLE_NAME = 'humor_flavors'
 
 export default async function ListPage() {
+  const supabase = getSupabase()
+
+  if (!supabase) {
+    return (
+      <main className="container">
+        <h1>List: {TABLE_NAME}</h1>
+        <p className="error">
+          Supabase not configured. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY
+          in .env.local (local) or in Vercel Project → Settings → Environment Variables.
+        </p>
+        <Link href="/">← Back home</Link>
+      </main>
+    )
+  }
+
   const { data: rows, error } = await supabase
     .from(TABLE_NAME)
     .select('*')

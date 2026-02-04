@@ -1,0 +1,66 @@
+/**
+ * Allowed database table names for the Assignment 2 dropdown.
+ * Only these tables can be queried (avoids arbitrary table access).
+ */
+export const ALLOWED_TABLES = [
+  'allowed_signup_domains',
+  'bug_reports',
+  'caption_examples',
+  'caption_likes',
+  'caption_requests',
+  'caption_saved',
+  'caption_votes',
+  'captions',
+  'common_use_categories',
+  'common_use_category_image_mappings',
+  'communities',
+  'community_context_tag_mappings',
+  'community_context_tags',
+  'community_contexts',
+  'dorms',
+  'humor_flavor_mix',
+  'humor_flavor_step_types',
+  'humor_flavor_steps',
+  'humor_flavor_theme_mappings',
+  'humor_flavors',
+  'humor_themes',
+  'images',
+  'invitations',
+  'link_redirects',
+  'llm_input_types',
+  'llm_model_responses',
+  'llm_models',
+  'llm_output_types',
+  'llm_prompt_chains',
+  'llm_providers',
+  'news_entities',
+  'news_snippets',
+  'personalities',
+  'profile_dorm_mappings',
+  'profile_university_major_mappings',
+  'profile_university_mappings',
+  'profiles',
+  'reported_captions',
+  'reported_images',
+  'screenshots',
+  'share_to_destinations',
+  'shares',
+  'studies',
+  'study_caption_mappings',
+  'study_image_set_image_mappings',
+  'study_image_sets',
+  'term_types',
+  'terms',
+  'testflight_errors',
+  'transcript_personality_mappings',
+  'transcripts',
+  'universities',
+  'university_major_mappings',
+  'university_majors',
+] as const
+
+export const DEFAULT_TABLE = 'humor_flavors'
+
+export function isAllowedTable(name: string): name is (typeof ALLOWED_TABLES)[number] {
+  return (ALLOWED_TABLES as readonly string[]).includes(name)
+}
