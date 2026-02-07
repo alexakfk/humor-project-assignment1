@@ -1,105 +1,21 @@
-'use client'
+import { redirect } from 'next/navigation'
 
-import { Suspense, useEffect, useState } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
-import {
-  getCodeVerifierAndState,
-  clearCodeVerifierAndState,
-} from '@/lib/auth'
+type Props = { searchParams: Promise<{ code?: string; state?: string }> }
 
-function getRedirectUri(): string {
-  const fixed = process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI
-  if (fixed) return fixed.replace(/\/$/, '')
-  if (typeof window !== 'undefined')
-    return `${window.location.origin}/auth/callback`
-  return ''
-}
+/**
+ * Google redirects here with ?code=...&state=....
+ * We immediately redirect to the API route so the OAuth code exchange
+ * happens entirely on the server (GET /api/auth/callback).
+ */
+export default async function AuthCallbackPage({ searchParams }: Props) {
+  const params = await searchParams
+  const code = params?.code
+  const state = params?.state
 
-function CallbackContent() {
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const [status, setStatus] = useState<'exchanging' | 'done' | 'error'>(
-    'exchanging'
-  )
-  const [errorMessage, setErrorMessage] = useState<string>('')
+  if (!code || !state) {
+    redirect('/assignment-3?error=missing_params')
+  }
 
-  useEffect(() => {
-    const code = searchParams?.get('code')
-    const state = searchParams?.get('state')
-
-    if (!code) {
-      setStatus('error')
-      setErrorMessage('No authorization code received.')
-      return
-    }
-
-    const stored = getCodeVerifierAndState()
-    if (!stored) {
-      setStatus('error')
-      setErrorMessage('Session expired. Please try signing in again.')
-      return
-    }
-    if (state && state !== stored.state) {
-      setStatus('error')
-      setErrorMessage('Invalid state. Please try again.')
-      clearCodeVerifierAndState()
-      return
-    }
-
-    const redirectUri = getRedirectUri()
-
-    fetch('/api/auth/callback', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        code,
-        code_verifier: stored.verifier,
-        redirect_uri: redirectUri,
-      }),
-    })
-      .then((res) => {
-        clearCodeVerifierAndState()
-        if (!res.ok) return res.json().then((d) => Promise.reject(d))
-        return res.json()
-      })
-      .then(() => {
-        setStatus('done')
-        router.replace('/assignment-3')
-      })
-      .catch((err) => {
-        setStatus('error')
-        setErrorMessage(
-          err?.error || err?.details || 'Sign-in failed. Please try again.'
-        )
-      })
-  }, [searchParams, router])
-
-  return (
-    <div className="content-page">
-      <h1 className="page-title">Signing in</h1>
-      {status === 'exchanging' && <p className="page-subtitle">Completing sign-in…</p>}
-      {status === 'done' && <p className="page-subtitle">Redirecting…</p>}
-      {status === 'error' && (
-        <>
-          <p className="error">{errorMessage}</p>
-          <a href="/assignment-3">Back to Assignment 3</a>
-        </>
-      )}
-    </div>
-  )
-}
-
-export default function AuthCallbackPage() {
-  return (
-    <Suspense
-      fallback={
-        <div className="content-page">
-          <h1 className="page-title">Signing in</h1>
-          <p className="page-subtitle">Loading…</p>
-        </div>
-      }
-    >
-      <CallbackContent />
-    </Suspense>
-  )
+  const q = new URLSearchParams({ code, state })
+  redirect(`/api/auth/callback?${q.toString()}`)
 }

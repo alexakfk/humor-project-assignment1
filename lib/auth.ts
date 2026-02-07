@@ -1,11 +1,11 @@
 /**
  * PKCE and Google OAuth helpers for Assignment 3.
- * No client secret. Redirect URI must be exactly /auth/callback
- * (e.g. http://localhost:3000/auth/callback and your production origin + /auth/callback
- * added in Google Cloud Console → APIs & Services → Credentials → your OAuth client).
+ * No client secret. Redirect URI must match exactly what is registered in
+ * Google Cloud Console for this OAuth client.
  */
 
 export const SESSION_COOKIE = 'ak_oauth_session'
+export const PKCE_COOKIE = 'ak_oauth_pkce'
 
 const GOOGLE_AUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth'
 const CODE_VERIFIER_KEY = 'ak_oauth_code_verifier'
@@ -55,14 +55,9 @@ export function clearCodeVerifierAndState(): void {
   }
 }
 
-/**
- * Redirect URI sent to Google. Must match exactly what is registered in
- * Google Cloud Console for this OAuth client. If NEXT_PUBLIC_OAUTH_REDIRECT_URI
- * is set (e.g. your deployed app URL), that is used so the shared client works.
- */
-function getRedirectUri(): string {
+export function getRedirectUri(): string {
   const fixed = process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI
-  if (fixed) return fixed.replace(/\/$/, '') // no trailing slash
+  if (fixed) return fixed.replace(/\/$/, '')
   if (typeof window !== 'undefined')
     return `${window.location.origin}/auth/callback`
   return ''
