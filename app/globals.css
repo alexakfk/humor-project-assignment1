@@ -475,6 +475,10 @@ th:last-child {
   opacity: 0.8;
 }
 
+.gated-ui-error {
+  margin-bottom: 1rem;
+}
+
 .protected-content {
   margin-top: 0.5rem;
 }

@@ -5,14 +5,17 @@ import { getGoogleAuthUrl } from '@/lib/auth'
 
 export default function GatedUI() {
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   async function handleSignIn() {
+    setError(null)
     setLoading(true)
     try {
       const url = await getGoogleAuthUrl()
       window.location.href = url
     } catch (e) {
-      console.error(e)
+      const message = e instanceof Error ? e.message : 'Sign-in failed.'
+      setError(message)
       setLoading(false)
     }
   }
@@ -24,6 +27,7 @@ export default function GatedUI() {
         <p className="gated-ui-text">
           This route is protected. Sign in with Google to continue.
         </p>
+        {error && <p className="error gated-ui-error">{error}</p>}
         <button
           type="button"
           onClick={handleSignIn}
