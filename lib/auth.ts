@@ -1,0 +1,95 @@
+/**
+ * PKCE and Google OAuth helpers for Assignment 3.
+ * No client secret. Redirect URI must be exactly /auth/callback
+ * (e.g. http://localhost:3000/auth/callback and your production origin + /auth/callback
+ * added in Google Cloud Console → APIs & Services → Credentials → your OAuth client).
+ */
+
+export const SESSION_COOKIE = 'ak_oauth_session'
+
+const GOOGLE_AUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth'
+const CODE_VERIFIER_KEY = 'ak_oauth_code_verifier'
+const STATE_KEY = 'ak_oauth_state'
+
+function base64UrlEncode(buffer: ArrayBuffer): string {
+  const bytes = new Uint8Array(buffer)
+  let binary = ''
+  for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i])
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
+}
+
+export function generateCodeVerifier(): string {
+  const array = new Uint8Array(32)
+  if (typeof window !== 'undefined' && window.crypto) {
+    window.crypto.getRandomValues(array)
+  }
+  return base64UrlEncode(array.buffer)
+}
+
+export async function computeCodeChallenge(verifier: string): Promise<string> {
+  const encoder = new TextEncoder()
+  const data = encoder.encode(verifier)
+  const digest = await crypto.subtle.digest('SHA-256', data)
+  return base64UrlEncode(digest)
+}
+
+export function saveCodeVerifierAndState(verifier: string, state: string): void {
+  if (typeof window !== 'undefined') {
+    sessionStorage.setItem(CODE_VERIFIER_KEY, verifier)
+    sessionStorage.setItem(STATE_KEY, state)
+  }
+}
+
+export function getCodeVerifierAndState(): { verifier: string; state: string } | null {
+  if (typeof window === 'undefined') return null
+  const verifier = sessionStorage.getItem(CODE_VERIFIER_KEY)
+  const state = sessionStorage.getItem(STATE_KEY)
+  if (!verifier || !state) return null
+  return { verifier, state }
+}
+
+export function clearCodeVerifierAndState(): void {
+  if (typeof window !== 'undefined') {
+    sessionStorage.removeItem(CODE_VERIFIER_KEY)
+    sessionStorage.removeItem(STATE_KEY)
+  }
+}
+
+/**
+ * Redirect URI sent to Google. Must match exactly what is registered in
+ * Google Cloud Console for this OAuth client. If NEXT_PUBLIC_OAUTH_REDIRECT_URI
+ * is set (e.g. your deployed app URL), that is used so the shared client works.
+ */
+function getRedirectUri(): string {
+  const fixed = process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI
+  if (fixed) return fixed.replace(/\/$/, '') // no trailing slash
+  if (typeof window !== 'undefined')
+    return `${window.location.origin}/auth/callback`
+  return ''
+}
+
+export async function getGoogleAuthUrl(): Promise<string> {
+  const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID
+  if (!clientId) throw new Error('NEXT_PUBLIC_GOOGLE_CLIENT_ID is not set')
+
+  const verifier = generateCodeVerifier()
+  const challenge = await computeCodeChallenge(verifier)
+  const state = base64UrlEncode(crypto.getRandomValues(new Uint8Array(16)).buffer)
+
+  const redirectUri = getRedirectUri()
+  if (!redirectUri) throw new Error('Redirect URI could not be determined')
+
+  saveCodeVerifierAndState(verifier, state)
+
+  const params = new URLSearchParams({
+    client_id: clientId,
+    redirect_uri: redirectUri,
+    response_type: 'code',
+    scope: 'openid email profile',
+    code_challenge: challenge,
+    code_challenge_method: 'S256',
+    state,
+  })
+
+  return `${GOOGLE_AUTH_URL}?${params.toString()}`
+}
