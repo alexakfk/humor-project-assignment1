@@ -426,6 +426,59 @@ th:last-child {
   padding-right: 1.25rem;
 }
 
+/* Assignment 3 gated UI */
+.gated-ui {
+  margin-top: 1rem;
+}
+
+.gated-ui-card {
+  background: rgba(45, 27, 61, 0.6);
+  border: 1px solid var(--sidebar-border);
+  border-radius: var(--radius-xl);
+  padding: 2rem 2.5rem;
+  max-width: 420px;
+}
+
+.gated-ui-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--purple-200);
+  margin: 0 0 0.75rem 0;
+}
+
+.gated-ui-text {
+  color: var(--purple-300);
+  font-size: 0.95rem;
+  margin: 0 0 1.5rem 0;
+  line-height: 1.5;
+}
+
+.gated-ui-button {
+  padding: 0.6rem 1.25rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--purple-900);
+  background: var(--gradient-purple-soft);
+  border: 1px solid var(--sidebar-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.gated-ui-button:hover:not(:disabled) {
+  opacity: 0.95;
+  transform: translateY(-1px);
+}
+
+.gated-ui-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+
+.protected-content {
+  margin-top: 0.5rem;
+}
+
 .error {
   color: #fecaca;
   background: rgba(127, 29, 29, 0.25);
