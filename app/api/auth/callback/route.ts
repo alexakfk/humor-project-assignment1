@@ -27,13 +27,15 @@ export async function GET(request: NextRequest) {
     let code_verifier: string
     let storedState: string
     let redirect_uri: string
+    let redirect_to: string
     try {
       const payload = JSON.parse(
         Buffer.from(pkceCookie, 'base64url').toString('utf-8')
-      ) as { code_verifier: string; state: string; redirect_uri: string }
+      ) as { code_verifier: string; state: string; redirect_uri: string; redirect_to?: string }
       code_verifier = payload.code_verifier
       storedState = payload.state
       redirect_uri = payload.redirect_uri
+      redirect_to = payload.redirect_to || '/assignment-3'
     } catch {
       return NextResponse.redirect(new URL('/assignment-3?error=invalid_cookie', request.url))
     }

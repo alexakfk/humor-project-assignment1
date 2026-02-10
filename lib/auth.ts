@@ -55,9 +55,26 @@ export function clearCodeVerifierAndState(): void {
   }
 }
 
+/**
+ * Returns Supabase's auth callback URL (where Google redirects to).
+ * Flow: App → Google → Supabase → App
+ */
 export function getRedirectUri(): string {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  if (!supabaseUrl) {
+    throw new Error('NEXT_PUBLIC_SUPABASE_URL is not set')
+  }
+  // Supabase auth callback endpoint
+  return `https://secure.almostcrackd.ai/auth/v1/callback`
+}
+
+/**
+ * Returns the app's callback URL (where Supabase redirects after auth).
+ * This is passed as redirect_to parameter to tell Supabase where to send the user.
+ */
+export function getAppCallbackUrl(): string {
   const fixed = process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI
-  if (fixed) return fixed.replace(/\/$/, '')
+  if (fixed) return fixed.replace(/\/+$/, '')
   if (typeof window !== 'undefined')
     return `${window.location.origin}/auth/callback`
   return ''

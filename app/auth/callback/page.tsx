@@ -1,6 +1,6 @@
-import { redirect } from 'next/navigation'
+import { redirect } from "next/navigation";
 
-type Props = { searchParams: Promise<{ code?: string; state?: string }> }
+type Props = { searchParams: Promise<{ code?: string; state?: string }> };
 
 /**
  * Google redirects here with ?code=...&state=....
@@ -8,14 +8,14 @@ type Props = { searchParams: Promise<{ code?: string; state?: string }> }
  * happens entirely on the server (GET /api/auth/callback).
  */
 export default async function AuthCallbackPage({ searchParams }: Props) {
-  const params = await searchParams
-  const code = params?.code
-  const state = params?.state
+  const params = await searchParams;
+  const code = params?.code;
+  const state = params?.state;
 
   if (!code || !state) {
-    redirect('/assignment-3?error=missing_params')
+    redirect("/assignment-3?error=missing_params");
   }
 
-  const q = new URLSearchParams({ code, state })
-  redirect(`/api/auth/callback?${q.toString()}`)
+  const q = new URLSearchParams({ code, state });
+  redirect(`/api/auth/callback?${q.toString()}`);
 }
