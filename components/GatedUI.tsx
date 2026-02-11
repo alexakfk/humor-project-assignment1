@@ -1,70 +1,29 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import {
-  generateCodeVerifier,
-  computeCodeChallenge,
-  getAppCallbackUrl,
-} from "@/lib/auth";
+import { useState } from "react";
+import { createClient } from "@/lib/supabase/client";
 
 export default function GatedUI() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [redirectUri, setRedirectUri] = useState("");
-  const [origin, setOrigin] = useState("");
-
-  useEffect(() => {
-    setRedirectUri(getAppCallbackUrl());
-    if (typeof window !== "undefined") {
-      setOrigin(window.location.origin);
-    }
-  }, []);
 
   async function handleSignIn() {
     setError(null);
     setLoading(true);
     try {
-      const verifier = generateCodeVerifier();
-      const code_challenge = await computeCodeChallenge(verifier);
-      const state =
-        typeof crypto !== "undefined" && crypto.getRandomValues
-          ? btoa(
-              String.fromCharCode(...crypto.getRandomValues(new Uint8Array(16)))
-            )
-              .replace(/\+/g, "-")
-              .replace(/\//g, "_")
-              .replace(/=+$/, "")
-          : Math.random().toString(36).slice(2);
-
-      const redirect_to = getAppCallbackUrl();
-      if (!redirect_to) throw new Error("App callback URL could not be determined");
-
-      const res = await fetch("/api/auth/authorize", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          code_challenge,
-          state,
-          code_verifier: verifier,
-          redirect_to, // Where Supabase sends user after auth
-        }),
+      const supabase = createClient();
+      const redirectTo = `${window.location.origin}/auth/callback`;
+      const { data, error: authError } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: { redirectTo },
       });
 
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data?.error || `Request failed (${res.status})`);
+      if (authError) throw authError;
+      if (data?.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error("No auth URL returned");
       }
-
-      const data = await res.json();
-      const { authUrl, redirect_uri_used } = data;
-      if (!authUrl) throw new Error("No auth URL returned");
-      if (redirect_uri_used) {
-        console.info(
-          "[OAuth] Add this exact URL in Google Cloud Console → Authorized redirect URIs:",
-          redirect_uri_used
-        );
-      }
-      window.location.href = authUrl;
     } catch (e) {
       const message = e instanceof Error ? e.message : "Sign-in failed.";
       setError(message);
@@ -88,27 +47,6 @@ export default function GatedUI() {
         >
           {loading ? "Redirecting…" : "Sign in with Google"}
         </button>
-        {redirectUri && (
-          <p className="gated-ui-redirect-hint">
-            If you see &quot;redirect_uri_mismatch&quot;, add this{" "}
-            <strong>exact</strong> URL in Google Cloud Console → Credentials →
-            your OAuth client → Authorized redirect URIs:
-            <br />
-            <code className="gated-ui-redirect-uri">{redirectUri}</code>
-          </p>
-        )}
-        {redirectUri && (
-          <div className="gated-ui-redirect-hint">
-            <p>Redirect URI being sent:</p>
-            <code className="gated-ui-redirect-uri">{redirectUri}</code>
-            {origin && (
-              <p>
-                Current origin:{" "}
-                <code className="gated-ui-redirect-uri">{origin}</code>
-              </p>
-            )}
-          </div>
-        )}
       </div>
     </div>
   );
