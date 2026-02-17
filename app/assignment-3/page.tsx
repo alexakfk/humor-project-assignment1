@@ -4,6 +4,8 @@ import { SESSION_COOKIE } from '@/lib/auth'
 import GatedUI from '@/components/GatedUI'
 import CaptionVoter from '@/components/CaptionVoter'
 
+export const dynamic = 'force-dynamic'
+
 export default async function Assignment3() {
   const cookieStore = await cookies()
   const session = cookieStore.get(SESSION_COOKIE)
@@ -62,8 +64,8 @@ export default async function Assignment3() {
   )
   const captionsLeft = available.length
 
-  // Pick first available caption (or random for variety)
   const current = available[0] ?? null
+  const next = available[1] ?? null
 
   return (
     <div className="content-page">
@@ -71,9 +73,16 @@ export default async function Assignment3() {
       <p className="page-subtitle">Rate captions to help us improve.</p>
       {current ? (
         <CaptionVoter
-          captionId={current.id}
-          captionContent={current.content ?? ''}
-          imageUrl={imageMap.get(current.id) ?? ''}
+          current={{
+            id: current.id,
+            content: current.content ?? '',
+            imageUrl: imageMap.get(current.id) ?? '',
+          }}
+          next={next ? {
+            id: next.id,
+            content: next.content ?? '',
+            imageUrl: imageMap.get(next.id) ?? '',
+          } : null}
           captionsLeft={captionsLeft}
         />
       ) : (

@@ -1,40 +1,61 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 
+type CaptionData = { id: string; content: string; imageUrl: string }
+
 type CaptionVoterProps = {
-  captionId: string
-  captionContent: string
-  imageUrl: string
+  current: CaptionData
+  next: CaptionData | null
   captionsLeft: number
 }
 
 export default function CaptionVoter({
-  captionId,
-  captionContent,
-  imageUrl,
+  current,
+  next,
   captionsLeft,
 }: CaptionVoterProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [voted, setVoted] = useState<1 | -1 | null>(null)
+  const [display, setDisplay] = useState<CaptionData | null>(current)
+  const [displayCount, setDisplayCount] = useState(captionsLeft)
+  const [showEmpty, setShowEmpty] = useState(false)
+
+  // Reset when we receive new props (e.g. after router.refresh())
+  useEffect(() => {
+    setDisplay(current)
+    setDisplayCount(captionsLeft)
+    setVoted(null)
+    setShowEmpty(false)
+  }, [current, captionsLeft])
 
   async function handleVote(voteValue: 1 | -1) {
-    if (loading || voted) return
+    if (loading || voted !== null) return
     setError(null)
     setLoading(true)
     try {
       const res = await fetch('/api/vote', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ caption_id: captionId, vote_value: voteValue }),
+        body: JSON.stringify({ caption_id: current.id, vote_value: voteValue }),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error ?? 'Vote failed')
       setVoted(voteValue)
-      router.refresh()
+      setDisplayCount((c) => Math.max(0, c - 1))
+      // Brief feedback, then show preloaded next caption or empty state
+      setTimeout(() => {
+        if (next) {
+          setDisplay(next)
+        } else {
+          setShowEmpty(true)
+          setDisplay(null)
+        }
+        router.refresh()
+      }, 120)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Vote failed')
     } finally {
@@ -42,17 +63,25 @@ export default function CaptionVoter({
     }
   }
 
+  if (showEmpty) {
+    return (
+      <div className="caption-voter-empty">
+        <p>Thanks for rating! No more captions to rate right now.</p>
+      </div>
+    )
+  }
+
   return (
     <div className="caption-voter">
       <div className="caption-voter-image-wrap">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={imageUrl}
+          src={display!.imageUrl}
           alt=""
           className="caption-voter-image"
         />
       </div>
-      <p className="caption-voter-text">{captionContent}</p>
+      <p className="caption-voter-text">{display!.content}</p>
       <div className="caption-voter-buttons">
         <button
           type="button"
@@ -74,7 +103,7 @@ export default function CaptionVoter({
         </button>
       </div>
       {error && <p className="error caption-voter-error">{error}</p>}
-      <p className="caption-voter-count">{captionsLeft} CAPTIONS LEFT</p>
+      <p className="caption-voter-count">{displayCount} CAPTIONS LEFT</p>
     </div>
   )
 }
