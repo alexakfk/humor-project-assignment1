@@ -17,9 +17,15 @@ export async function createClient() {
         return cookieStore.getAll()
       },
       setAll(cookiesToSet: { name: string; value: string; options: Record<string, unknown> }[]) {
-        cookiesToSet.forEach(({ name, value, options }) => {
-          cookieStore.set(name, value, options)
-        })
+        try {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            cookieStore.set(name, value, options)
+          })
+        } catch {
+          // Cookies can only be modified in Server Actions or Route Handlers.
+          // In Server Components, Supabase may try to refresh the session and call setAll.
+          // Ignore the error so we can still read the session; refresh will happen in middleware or Route Handlers.
+        }
       },
     },
   })
