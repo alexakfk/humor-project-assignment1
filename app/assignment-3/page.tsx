@@ -14,7 +14,7 @@ export default async function Assignment3() {
   if (!isAuthenticated) {
     return (
       <div className="content-page">
-        <h1 className="page-title">Assignment 3</h1>
+        <h1 className="page-title">Assignment 3 & 4</h1>
         <GatedUI />
       </div>
     )
@@ -26,7 +26,7 @@ export default async function Assignment3() {
   if (!user) {
     return (
       <div className="content-page">
-        <h1 className="page-title">Assignment 3</h1>
+        <h1 className="page-title">Assignment 3 & 4</h1>
         <GatedUI />
       </div>
     )
@@ -69,7 +69,7 @@ export default async function Assignment3() {
 
   return (
     <div className="content-page">
-      <h1 className="page-title">Assignment 3</h1>
+      <h1 className="page-title">Assignment 3 & 4</h1>
       <p className="page-subtitle">Rate captions to help us improve.</p>
       {current ? (
         <CaptionVoter
