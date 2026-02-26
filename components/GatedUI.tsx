@@ -3,7 +3,15 @@
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
-export default function GatedUI() {
+type GatedUIProps = {
+  title?: string;
+  description?: string;
+};
+
+export default function GatedUI({
+  title = "Sign in Required",
+  description = "This page is protected. Sign in with Google to continue.",
+}: GatedUIProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -34,10 +42,8 @@ export default function GatedUI() {
   return (
     <div className="gated-ui">
       <div className="gated-ui-card">
-        <h2 className="gated-ui-title">Assignment 3</h2>
-        <p className="gated-ui-text">
-          This route is protected. Sign in with Google to continue.
-        </p>
+        <h2 className="gated-ui-title">{title}</h2>
+        <p className="gated-ui-text">{description}</p>
         {error && <p className="error gated-ui-error">{error}</p>}
         <button
           type="button"

@@ -1,7 +1,9 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import UserMenu from './UserMenu'
 
 const navItems = [
   { href: '/', label: 'Assignment 1' },
@@ -12,25 +14,40 @@ const navItems = [
 
 export default function Sidebar() {
   const pathname = usePathname()
+  const [mobileOpen, setMobileOpen] = useState(false)
 
   return (
-    <aside className="sidebar">
-      <h1 className="sidebar-brand">Alexa Kafka's </h1>
-      <h2 className="sidebar-subtitle">Humor Project</h2>
-      <nav className="sidebar-nav">
-        {navItems.map(({ href, label }) => {
-          const isActive = pathname === href || (href !== '/' && pathname.startsWith(href))
-          return (
-            <Link
-              key={href}
-              href={href}
-              className={`sidebar-link ${isActive ? 'sidebar-link-active' : ''}`}
-            >
-              {label}
-            </Link>
-          )
-        })}
-      </nav>
-    </aside>
+    <>
+      <button
+        className="sidebar-mobile-toggle"
+        onClick={() => setMobileOpen(!mobileOpen)}
+        aria-label="Toggle navigation"
+      >
+        {mobileOpen ? '\u2715' : '\u2630'}
+      </button>
+      {mobileOpen && (
+        <div className="sidebar-overlay" onClick={() => setMobileOpen(false)} />
+      )}
+      <aside className={`sidebar${mobileOpen ? ' sidebar-open' : ''}`}>
+        <h1 className="sidebar-brand">Alexa Kafka's </h1>
+        <h2 className="sidebar-subtitle">Humor Project</h2>
+        <nav className="sidebar-nav">
+          {navItems.map(({ href, label }) => {
+            const isActive = pathname === href || (href !== '/' && pathname.startsWith(href))
+            return (
+              <Link
+                key={href}
+                href={href}
+                className={`sidebar-link ${isActive ? 'sidebar-link-active' : ''}`}
+                onClick={() => setMobileOpen(false)}
+              >
+                {label}
+              </Link>
+            )
+          })}
+        </nav>
+        <UserMenu />
+      </aside>
+    </>
   )
 }
