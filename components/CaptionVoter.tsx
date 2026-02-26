@@ -45,9 +45,8 @@ export default function CaptionVoter({
       const data = await res.json()
       if (!res.ok) throw new Error(data.error ?? 'Vote failed')
       setVoted(voteValue)
-      setDisplayCount((c) => Math.max(0, c - 1))
-      // Brief feedback, then show preloaded next caption or empty state
       setTimeout(() => {
+        setDisplayCount((c) => Math.max(0, c - 1))
         if (next) {
           setDisplay(next)
         } else {

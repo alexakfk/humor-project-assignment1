@@ -475,6 +475,16 @@ th:last-child {
   opacity: 0.8;
 }
 
+.gated-ui-link {
+  color: var(--purple-200);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.gated-ui-link:hover {
+  color: var(--purple-100);
+}
+
 .gated-ui-error {
   margin-bottom: 1rem;
 }
