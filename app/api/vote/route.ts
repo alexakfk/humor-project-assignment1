@@ -39,7 +39,8 @@ export async function POST(request: NextRequest) {
       caption_id,
       profile_id: user.id,
       vote_value,
-      created_datetime_utc: new Date().toISOString(),
+      created_by_user_id: user.id,
+      modified_by_user_id: user.id,
     })
 
     if (insertError) {
