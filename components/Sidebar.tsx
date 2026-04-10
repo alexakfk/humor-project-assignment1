@@ -23,7 +23,12 @@ export default function Sidebar() {
         onClick={() => setMobileOpen(!mobileOpen)}
         aria-label="Toggle navigation"
       >
-        {mobileOpen ? '\u2715' : '\u2630'}
+        <span className="sidebar-mobile-toggle-icon" aria-hidden="true">
+          {mobileOpen ? '\u2715' : '\u2630'}
+        </span>
+        <span className="sidebar-mobile-toggle-label">
+          {mobileOpen ? 'Close' : 'Menu'}
+        </span>
       </button>
       {mobileOpen && (
         <div className="sidebar-overlay" onClick={() => setMobileOpen(false)} />

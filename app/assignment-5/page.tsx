@@ -17,7 +17,7 @@ export default async function Assignment5() {
         <h1 className="page-title">Assignment 5</h1>
         <GatedUI
           title="Sign in Required"
-          description="Sign in with Google to upload images and generate captions."
+          description="Sign in with Google to upload images, generate captions, and keep your uploads tied to your account."
         />
       </div>
     )

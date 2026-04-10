@@ -756,6 +756,12 @@ th:last-child {
   margin-top: 0.5rem;
 }
 
+.uploader-results-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
 .uploader-results-title {
   font-size: 1.1rem;
   font-weight: 600;
@@ -868,21 +874,33 @@ th:last-child {
   top: 0.75rem;
   left: 0.75rem;
   z-index: 1001;
-  width: 40px;
-  height: 40px;
-  border: 1px solid var(--sidebar-border);
+  height: 44px;
+  padding: 0 0.8rem;
+  border: 1px solid rgba(168, 85, 247, 0.45);
   border-radius: var(--radius-md);
-  background: var(--sidebar-bg);
-  color: var(--purple-200);
-  font-size: 1.25rem;
+  background: rgba(26, 22, 37, 0.95);
+  color: var(--purple-100);
+  font-size: 1.1rem;
+  font-weight: 600;
   cursor: pointer;
   align-items: center;
   justify-content: center;
+  gap: 0.45rem;
   line-height: 1;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
 }
 
 .sidebar-mobile-toggle:hover {
-  background: rgba(168, 85, 247, 0.15);
+  background: rgba(168, 85, 247, 0.22);
+}
+
+.sidebar-mobile-toggle-icon {
+  font-size: 1.2rem;
+}
+
+.sidebar-mobile-toggle-label {
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
 }
 
 .sidebar-overlay {

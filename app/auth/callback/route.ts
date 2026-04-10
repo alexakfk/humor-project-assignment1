@@ -10,20 +10,20 @@ import { SESSION_COOKIE } from '@/lib/auth'
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const code = searchParams.get('code')
-  const next = searchParams.get('next') ?? '/assignment-3'
+  const next = searchParams.get('next') ?? '/assignment-5'
 
   if (!code) {
-    return NextResponse.redirect(new URL(`/assignment-3?error=missing_params`, request.url))
+    return NextResponse.redirect(new URL(`/assignment-5?error=missing_params`, request.url))
   }
 
   const supabase = await createClient()
   const { error } = await supabase.auth.exchangeCodeForSession(code)
 
   if (error) {
-    return NextResponse.redirect(new URL(`/assignment-3?error=auth_failed`, request.url))
+    return NextResponse.redirect(new URL(`/assignment-5?error=auth_failed`, request.url))
   }
 
-  const redirectUrl = new URL(next.startsWith('/') ? next : '/assignment-3', request.url)
+  const redirectUrl = new URL(next.startsWith('/') ? next : '/assignment-5', request.url)
   const res = NextResponse.redirect(redirectUrl)
 
   // Set our app's session cookie so assignment-3's auth check passes

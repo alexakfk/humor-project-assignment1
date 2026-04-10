@@ -165,7 +165,7 @@ export default function ImageUploader() {
         )}
         {(file || stepNum >= 0) && !isProcessing && (
           <button className="uploader-btn uploader-btn-secondary" onClick={reset}>
-            {stepNum === 4 ? 'Upload Another' : 'Clear'}
+            {stepNum === 4 ? 'Upload Another' : 'Remove Selected Image'}
           </button>
         )}
       </div>
@@ -197,6 +197,11 @@ export default function ImageUploader() {
                 </p>
               </div>
             ))}
+          </div>
+          <div className="uploader-results-actions">
+            <button className="uploader-btn uploader-btn-primary" onClick={reset}>
+              Upload Another Image
+            </button>
           </div>
         </div>
       )}
