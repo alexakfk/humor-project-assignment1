@@ -37,10 +37,13 @@ export default function CaptionVoter({
     setError(null)
     setLoading(true)
     try {
+      const captionId = display?.id
+      if (!captionId) throw new Error('No caption available to vote on')
+
       const res = await fetch('/api/vote', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ caption_id: current.id, vote_value: voteValue }),
+        body: JSON.stringify({ caption_id: captionId, vote_value: voteValue }),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error ?? 'Vote failed')
