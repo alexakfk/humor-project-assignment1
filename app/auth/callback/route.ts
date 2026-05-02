@@ -1,6 +1,11 @@
 import { NextResponse } from 'next/server'
+import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
-import { SESSION_COOKIE } from '@/lib/auth'
+import {
+  OAUTH_RETURN_PATH_COOKIE,
+  sanitizeReturnPath,
+  SESSION_COOKIE,
+} from '@/lib/auth'
 
 /**
  * Supabase OAuth callback. Supabase redirects here after Google sign-in
@@ -10,7 +15,12 @@ import { SESSION_COOKIE } from '@/lib/auth'
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const code = searchParams.get('code')
-  const next = searchParams.get('next') ?? '/assignment-5'
+  const cookieStore = await cookies()
+  const fromCookie = sanitizeReturnPath(
+    cookieStore.get(OAUTH_RETURN_PATH_COOKIE)?.value
+  )
+  const fromQuery = sanitizeReturnPath(searchParams.get('next'))
+  const next = fromQuery ?? fromCookie ?? '/assignment-5'
 
   if (!code) {
     return NextResponse.redirect(new URL(`/assignment-5?error=missing_params`, request.url))
@@ -25,6 +35,11 @@ export async function GET(request: Request) {
 
   const redirectUrl = new URL(next.startsWith('/') ? next : '/assignment-5', request.url)
   const res = NextResponse.redirect(redirectUrl)
+
+  res.cookies.set(OAUTH_RETURN_PATH_COOKIE, '', {
+    path: '/',
+    maxAge: 0,
+  })
 
   // Set our app's session cookie so assignment-3's auth check passes
   res.cookies.set(SESSION_COOKIE, '1', {

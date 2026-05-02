@@ -21,7 +21,12 @@ export default function GatedUI({
     try {
       const supabase = createClient();
       const nextPath = `${window.location.pathname}${window.location.search}`;
-      const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath)}`;
+      await fetch("/api/auth/return-path", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ path: nextPath }),
+      });
+      const redirectTo = `${window.location.origin}/auth/callback`;
       const { data, error: authError } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: { redirectTo },

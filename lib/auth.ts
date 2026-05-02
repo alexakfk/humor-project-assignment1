@@ -6,6 +6,16 @@
 
 export const SESSION_COOKIE = 'ak_oauth_session'
 export const PKCE_COOKIE = 'ak_oauth_pkce'
+/** Where to send the user after OAuth when redirectTo cannot include ?next= */
+export const OAUTH_RETURN_PATH_COOKIE = 'ak_oauth_return_path'
+
+/** Same-origin path only; blocks open redirects. */
+export function sanitizeReturnPath(path: unknown): string | null {
+  if (typeof path !== 'string' || !path.startsWith('/')) return null
+  if (path.startsWith('//') || path.includes('://')) return null
+  if (path.length > 2048) return null
+  return path
+}
 
 const GOOGLE_AUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth'
 const CODE_VERIFIER_KEY = 'ak_oauth_code_verifier'

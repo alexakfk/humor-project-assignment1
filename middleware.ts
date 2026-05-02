@@ -2,6 +2,15 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
+  // If Supabase falls back to Site URL, OAuth returns ?code= on / instead of /auth/callback.
+  const isRootWithAuthCode =
+    request.nextUrl.pathname === '/' && request.nextUrl.searchParams.has('code')
+  if (isRootWithAuthCode) {
+    const dest = request.nextUrl.clone()
+    dest.pathname = '/auth/callback'
+    return NextResponse.redirect(dest)
+  }
+
   let supabaseResponse = NextResponse.next({ request })
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
